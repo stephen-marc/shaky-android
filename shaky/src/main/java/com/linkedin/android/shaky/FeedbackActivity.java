@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2016 LinkedIn Corp.
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,13 +21,14 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import androidx.appcompat.app.AppCompatActivity;
 
 /**
  * The main activity used capture and send feedback.
@@ -42,94 +43,15 @@ public class FeedbackActivity extends AppCompatActivity {
     static final String USER_DATA = "userData";
 
     private Uri imageUri;
-    private @FeedbackItem.FeedbackType int feedbackType;
+    private @FeedbackItem.FeedbackType
+    int feedbackType;
     private Bundle userData;
-
-    @NonNull
-    public static Intent newIntent(@NonNull Context context,
-                                   @Nullable Uri screenshotUri,
-                                   @Nullable Bundle userData) {
-        Intent intent = new Intent(context, FeedbackActivity.class);
-        intent.putExtra(SCREENSHOT_URI, screenshotUri);
-        intent.putExtra(USER_DATA, userData);
-        return intent;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        setContentView(R.layout.shaky_feedback);
-
-        imageUri = getIntent().getParcelableExtra(SCREENSHOT_URI);
-        userData = getIntent().getBundleExtra(USER_DATA);
-
-        if (savedInstanceState == null) {
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .add(R.id.shaky_fragment_container, new SelectFragment())
-                    .commit();
-        }
-    }
-
-    @Override
-    protected void onResumeFragments() {
-        super.onResumeFragments();
-
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(FeedbackTypeAdapter.ACTION_FEEDBACK_TYPE_SELECTED);
-        filter.addAction(FormFragment.ACTION_SUBMIT_FEEDBACK);
-        filter.addAction(FormFragment.ACTION_EDIT_IMAGE);
-        filter.addAction(DrawFragment.ACTION_DRAWING_COMPLETE);
-        LocalBroadcastManager.getInstance(this).registerReceiver(receiver, filter);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(receiver);
-    }
-
-    /**
-     * Attaches this intent's extras to the fragment and transitions to the next fragment.
-     *
-     * @param fragment Fragment the fragment to swap to
-     */
-    private void changeToFragment(@NonNull Fragment fragment) {
-        getSupportFragmentManager().beginTransaction()
-            .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-            .replace(R.id.shaky_fragment_container, fragment)
-            .addToBackStack(null)
-            .commit();
-    }
-
-    /**
-     * Swap the view container for a form fragment, restores the previous fragment if one exists.
-     */
-    private void startFormFragment(@FeedbackItem.FeedbackType int feedbackType) {
-        String title = getString(getTitleResId(feedbackType));
-        String hint = getString(getHintResId(feedbackType));
-        changeToFragment(FormFragment.newInstance(title, hint, imageUri));
-    }
-
-    /**
-     * Swap the view container for a draw fragment, restores the previous fragment if one exists.
-     */
-    private void startDrawFragment() {
-        changeToFragment(DrawFragment.newInstance(imageUri));
-    }
-
-    private void setFeedbackType(@FeedbackItem.FeedbackType int feedbackType) {
-        this.feedbackType = feedbackType;
-    }
-
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (FeedbackTypeAdapter.ACTION_FEEDBACK_TYPE_SELECTED.equals(intent.getAction())) {
-                @FeedbackItem.FeedbackType int feedbackType =
-                        intent.getIntExtra(FeedbackTypeAdapter.EXTRA_FEEDBACK_TYPE, FeedbackItem.GENERAL);
+                @FeedbackItem.FeedbackType int feedbackType = intent.getIntExtra(
+                        FeedbackTypeAdapter.EXTRA_FEEDBACK_TYPE, FeedbackItem.GENERAL);
 
                 setFeedbackType(feedbackType);
 
@@ -147,16 +69,58 @@ public class FeedbackActivity extends AppCompatActivity {
         }
     };
 
-    private void submitFeedbackIntent(@Nullable String userMessage) {
-        Intent intent = new Intent(ACTION_END_FEEDBACK_FLOW);
-
-        intent.putExtra(SCREENSHOT_URI, imageUri);
-        intent.putExtra(TITLE, getString(getTitleResId(feedbackType)));
-        intent.putExtra(MESSAGE, userMessage);
+    @NonNull
+    public static Intent newIntent(@NonNull Context context, @Nullable Uri screenshotUri, @Nullable Bundle userData) {
+        Intent intent = new Intent(context, FeedbackActivity.class);
+        intent.putExtra(SCREENSHOT_URI, screenshotUri);
         intent.putExtra(USER_DATA, userData);
+        return intent;
+    }
 
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-        finish();
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        setContentView(R.layout.shaky_feedback);
+
+        imageUri = getIntent().getParcelableExtra(SCREENSHOT_URI);
+        userData = getIntent().getBundleExtra(USER_DATA);
+
+        if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction()
+                                       .add(R.id.shaky_fragment_container, new SelectFragment())
+                                       .commit();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        LocalBroadcastManager.getInstance(this)
+                             .unregisterReceiver(receiver);
+    }
+
+    @Override
+    protected void onResumeFragments() {
+        super.onResumeFragments();
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(FeedbackTypeAdapter.ACTION_FEEDBACK_TYPE_SELECTED);
+        filter.addAction(FormFragment.ACTION_SUBMIT_FEEDBACK);
+        filter.addAction(FormFragment.ACTION_EDIT_IMAGE);
+        filter.addAction(DrawFragment.ACTION_DRAWING_COMPLETE);
+        LocalBroadcastManager.getInstance(this)
+                             .registerReceiver(receiver, filter);
+    }
+
+    /**
+     * Swap the view container for a form fragment, restores the previous fragment if one exists.
+     */
+    private void startFormFragment(@FeedbackItem.FeedbackType int feedbackType) {
+        String title = getString(getTitleResId(feedbackType));
+        String hint = getString(getHintResId(feedbackType));
+        changeToFragment(FormFragment.newInstance(title, hint, imageUri));
     }
 
     @StringRes
@@ -184,4 +148,50 @@ public class FeedbackActivity extends AppCompatActivity {
                 return R.string.shaky_general_hint;
         }
     }
+
+    /**
+     * Attaches this intent's extras to the fragment and transitions to the next fragment.
+     *
+     * @param fragment Fragment the fragment to swap to
+     */
+    private void changeToFragment(@NonNull Fragment fragment) {
+        getSupportFragmentManager().beginTransaction()
+                                   .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                                   .replace(R.id.shaky_fragment_container, fragment)
+                                   .addToBackStack(null)
+                                   .commit();
+    }
+
+    /**
+     * Swap the view container for a draw fragment, restores the previous fragment if one exists.
+     */
+    private void startDrawFragment() {
+        changeToFragment(DrawFragment.newInstance(imageUri));
+    }
+
+    private void setFeedbackType(@FeedbackItem.FeedbackType int feedbackType) {
+        this.feedbackType = feedbackType;
+    }
+
+    private void submitFeedbackIntent(@Nullable String userMessage) {
+        Intent intent = new Intent(ACTION_END_FEEDBACK_FLOW);
+
+        userMessage = annotateUserMessage(userMessage);
+
+        intent.putExtra(SCREENSHOT_URI, imageUri);
+        intent.putExtra(TITLE, getString(getTitleResId(feedbackType)));
+        intent.putExtra(MESSAGE, userMessage);
+        intent.putExtra(USER_DATA, userData);
+
+        LocalBroadcastManager.getInstance(this)
+                             .sendBroadcast(intent);
+        finish();
+    }
+
+    private String annotateUserMessage(String userMessage) {
+        String systemInfo = DebugInfoUtil.getDebugInfoString(this);
+        return getString(R.string.shaky_email_template, userMessage, systemInfo);
+    }
+
+
 }
