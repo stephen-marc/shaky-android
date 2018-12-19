@@ -55,4 +55,24 @@
 
     <string name="shaky_empty_feedback_message">Please write your feedback.</string>
     <string name="shaky_empty_feedback_confirm">OK</string>
+
+    <string name="shaky_email_template"
+            translatable="false">
+        %s
+        \n\n
+        %s
+    </string>
+    <string name="shaky_email_system_info_template" translatable="true">
+        SystemInfo\n
+        %s\n
+        %s\n
+        %s\n
+        %s\n
+    </string>
+    <string name="shaky_email_app_version_template"
+            translatable="false">%s (%s)</string>
+    <string name="shaky_email_env_template" translatable="false">Timestamp: %s - %s</string>
+    <string name="shaky_email_app_template" translatable="false">AppVersion: %s</string>
+    <string name="shaky_email_device_template" translatable="false">Android Version: %s\nDevice Manufacturer: %s\nDevice Model: %s</string>
+    <string name="shaky_email_display_template" translatable="false">Display-Res: %s\nDisplay Density: %s\n</string>
 </resources>
