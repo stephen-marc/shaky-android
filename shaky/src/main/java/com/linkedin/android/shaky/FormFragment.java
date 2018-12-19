@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2016 LinkedIn Corp.
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,18 +19,20 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 /**
  * The main form used to send feedback.
@@ -46,9 +48,7 @@ public class FormFragment extends Fragment {
     private static final String KEY_TITLE = "title";
     private static final String KEY_HINT = "hint";
 
-    public static FormFragment newInstance(@NonNull String title,
-                                           @NonNull String hint,
-                                           @Nullable Uri screenshotUri) {
+    public static FormFragment newInstance(@NonNull String title, @NonNull String hint, @Nullable Uri screenshotUri) {
         Bundle args = new Bundle();
         args.putParcelable(KEY_SCREENSHOT_URI, screenshotUri);
         args.putString(KEY_TITLE, title);
@@ -77,8 +77,9 @@ public class FormFragment extends Fragment {
 
         String title = getArguments().getString(KEY_TITLE);
         toolbar.setTitle(title);
+
         toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
-        toolbar.setNavigationOnClickListener(createNavigationClickListener());
+        toolbar.setNavigationOnClickListener(createBackButtonClickListener());
         toolbar.inflateMenu(R.menu.shaky_feedback_activity_actions);
         toolbar.setOnMenuItemClickListener(createMenuClickListener(messageEditText));
 
@@ -91,12 +92,14 @@ public class FormFragment extends Fragment {
     }
 
     @NonNull
-    private View.OnClickListener createNavigationClickListener() {
+    private View.OnClickListener createBackButtonClickListener() {
         return new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(ACTION_EDIT_IMAGE);
-                LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(intent);
+            public void onClick(View view) {
+                FragmentActivity activity = getActivity();
+                if (activity != null) {
+                    activity.onBackPressed();
+                }
             }
         };
     }
@@ -107,12 +110,14 @@ public class FormFragment extends Fragment {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
                 if (item.getItemId() == R.id.action_submit) {
-                    String message = messageEditText.getText().toString();
+                    String message = messageEditText.getText()
+                                                    .toString();
 
                     if (validate(message)) {
                         Intent intent = new Intent(ACTION_SUBMIT_FEEDBACK);
                         intent.putExtra(EXTRA_USER_MESSAGE, message);
-                        LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(intent);
+                        LocalBroadcastManager.getInstance(getActivity())
+                                             .sendBroadcast(intent);
                         return true;
                     }
                 }
@@ -121,11 +126,24 @@ public class FormFragment extends Fragment {
         };
     }
 
+    @NonNull
+    private View.OnClickListener createNavigationClickListener() {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(ACTION_EDIT_IMAGE);
+                LocalBroadcastManager.getInstance(getActivity())
+                                     .sendBroadcast(intent);
+            }
+        };
+    }
+
     /**
      * Validates the message and returns true if the form is valid.
      */
     private boolean validate(@NonNull String message) {
-        if (message.trim().length() == 0) {
+        if (message.trim()
+                   .length() == 0) {
             AlertDialog alertDialog = new AlertDialog.Builder(getActivity()).create();
             alertDialog.setMessage(getString(R.string.shaky_empty_feedback_message));
             alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, getString(R.string.shaky_empty_feedback_confirm),
