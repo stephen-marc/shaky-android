@@ -58,21 +58,21 @@
 
     <string name="shaky_email_template"
             translatable="false">
-        %s
+        %1$s
         \n\n
-        %s
+        %2$s
     </string>
-    <string name="shaky_email_system_info_template" translatable="true">
+    <string name="shaky_email_system_info_template" translatable="false">
         SystemInfo\n
-        %s\n
-        %s\n
-        %s\n
-        %s\n
+        %1$s\n
+        %2$s\n
+        %3$s\n
+        %4$s\n
     </string>
     <string name="shaky_email_app_version_template"
-            translatable="false">%s (%s)</string>
-    <string name="shaky_email_env_template" translatable="false">Timestamp: %s - %s</string>
-    <string name="shaky_email_app_template" translatable="false">AppVersion: %s</string>
-    <string name="shaky_email_device_template" translatable="false">Android Version: %s\nDevice Manufacturer: %s\nDevice Model: %s</string>
-    <string name="shaky_email_display_template" translatable="false">Display-Res: %s\nDisplay Density: %s\n</string>
+            translatable="false">%1$s (%2$s)</string>
+    <string name="shaky_email_env_template" translatable="false">Timestamp: %1$s - %2$s</string>
+    <string name="shaky_email_app_template" translatable="false">AppVersion: %1$s</string>
+    <string name="shaky_email_device_template" translatable="false">Android Version: %1$s\nDevice Manufacturer: %2$s\nDevice Model: %3$s</string>
+    <string name="shaky_email_display_template" translatable="false">Display-Res: %1$s\nDisplay Density: %2$s\n</string>
 </resources>
